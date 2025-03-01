@@ -8,7 +8,7 @@ pip install -r requirements.txt
 
 To run the app, run:
 ```shell
-python main.py
+python FontViewerApp.py
 ```
 
 Enhancements are planned. Stay tuned!
