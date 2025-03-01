@@ -3,6 +3,7 @@
 Scratch
 favorites_list.txt
 font_list.txt
+config.ini
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
