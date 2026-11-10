@@ -3,7 +3,7 @@ A simple Python app to quickly show all your fonts, along with examples of all l
 
 ![](FontViewer.png)
 
-Requires Python (Anaconda, or something to run Python with). To install the requirements, run:
+Requires Python 3.10 or newer (Anaconda, or something to run Python with). To install the requirements, run:
 ```shell
 pip install -r requirements.txt
 ```

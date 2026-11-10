@@ -8,9 +8,9 @@ import socket
 import string
 import sys
 
-from PyQt5.QtCore import Qt, QSize, QPoint
-from PyQt5.QtGui import QFontDatabase, QFont, QFontMetrics
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import Qt, QSize, QPoint
+from PySide6.QtGui import QFontDatabase, QFont, QFontMetrics
+from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QTableWidget,
     QTableWidgetItem, QPushButton, QMessageBox, QFileDialog, QAbstractItemView, QLabel
 )
@@ -24,9 +24,8 @@ class FontViewer(QWidget):
         self.example_string = string.ascii_uppercase + " " + string.ascii_lowercase + " " + string.digits + " " + string.punctuation
         self.all_fonts_table = None
         self.favorites_table = None
-        self.font_db = QFontDatabase()
         self.font_size = 16
-        self.fonts = self.font_db.families()
+        self.fonts = QFontDatabase.families()
         # Get default font to use the metrics for resizing the font name column automatically.
         self.font = QFont()
         self.font_name = self.font.family()
@@ -98,7 +97,7 @@ class FontViewer(QWidget):
 
         # Create a QLabel for the section title and set its text
         label = QLabel(label_text)
-        label.setAlignment(Qt.AlignCenter)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
 
         # Add the provided scroll area to the layout
@@ -115,16 +114,16 @@ class FontViewer(QWidget):
         table.setColumnCount(2)
         table.horizontalHeader().setStretchLastSection(True)
         table.verticalHeader().setVisible(False)
-        table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        table.setSelectionMode(QAbstractItemView.SingleSelection)  # Optional as per your requirement
-        table.setEditTriggers(QAbstractItemView.NoEditTriggers)  # To prevent editing cells if not needed
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)  # Optional as per your requirement
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)  # To prevent editing cells if not needed
 
         table.setHorizontalHeaderLabels(["Font Name", "Example                                "])
         table.verticalHeader().setVisible(False)  # Hide row numbers
-        table.setEditTriggers(QTableWidget.NoEditTriggers)  # Read-only
-        table.setSelectionBehavior(QTableWidget.SelectRows)  # Select by rows
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)  # Read-only
+        table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)  # Select by rows
 
-        text_width = self.font_metrics.width(self.font_name)
+        text_width = self.font_metrics.horizontalAdvance(self.font_name)
         size = text_width + self.pad + 40
         table.horizontalHeader().resizeSection(0, size)
         table.setMinimumWidth(size)
@@ -136,7 +135,7 @@ class FontViewer(QWidget):
         for row, font_name in enumerate(self.fonts):
             try:
                 # Calculate text width
-                text_width = self.font_metrics.width(font_name)
+                text_width = self.font_metrics.horizontalAdvance(font_name)
                 # print(f"Text width for '{font_name}': {text_width}")
 
                 # Resize column if needed
@@ -151,7 +150,7 @@ class FontViewer(QWidget):
 
                 # Add example string to column 1 with custom font
                 example_item = QTableWidgetItem(self.example_string)
-                font = self.font_db.font(font_name, '', self.font_size)
+                font = QFontDatabase.font(font_name, '', self.font_size)
                 if not font:
                     print(f"Failed to generate font for '{font_name}'")
                     continue
@@ -217,13 +216,13 @@ class FontViewer(QWidget):
         self.favorites_table.setRowCount(0)  # Clear the table
         # print(f"Favorites: {list(self.favorites)}")
         for row, font_name in enumerate(self.favorites):
-            text_width = self.font_metrics.width(font_name)
+            text_width = self.font_metrics.horizontalAdvance(font_name)
             if text_width + self.pad > self.all_fonts_table.columnWidth(0):
                 self.all_fonts_table.horizontalHeader().resizeSection(0, text_width + self.pad)
             self.favorites_table.insertRow(row)
             self.favorites_table.setItem(row, 0, QTableWidgetItem(font_name))
             example_item = QTableWidgetItem(self.example_string)
-            example_item.setFont(self.font_db.font(font_name, '', self.font_size))
+            example_item.setFont(QFontDatabase.font(font_name, '', self.font_size))
             self.favorites_table.setItem(row, 1, example_item)
         self.favorites_table.sortItems(0)
 
@@ -237,9 +236,9 @@ class FontViewer(QWidget):
         for row in selected_rows:
             font_name = self.all_fonts_table.item(row.row(), 0).text()
             if font_name not in self.favorites:
-                text_width = self.font_metrics.width(font_name)
+                text_width = self.font_metrics.horizontalAdvance(font_name)
                 if text_width + self.pad > self.all_fonts_table.columnWidth(0):
-                    self.all_fonts_table.column(0).setMinimumWidth(text_width + self.pad)
+                    self.all_fonts_table.horizontalHeader().resizeSection(0, text_width + self.pad)
                 self.favorites.add(font_name)
                 example_item = self.all_fonts_table.item(row.row(), 1)
                 self.add_font_to_favorites(font_name, example_item)
@@ -251,7 +250,7 @@ class FontViewer(QWidget):
         self.favorites_table.setItem(row_count, 0, QTableWidgetItem(font_name))
         # self.favorites_table.setItem(row_count, 1, example_item)
         example_item = QTableWidgetItem(self.example_string)
-        example_item.setFont(self.font_db.font(font_name, '', self.font_size))
+        example_item.setFont(QFontDatabase.font(font_name, '', self.font_size))
         self.favorites_table.setItem(row_count, 1, example_item)
 
     def save_settings(self):
@@ -279,7 +278,7 @@ class FontViewer(QWidget):
 
             width, height = map(int, size.split(','))
             x, y = map(int, position.split(','))
-            screen_size = QApplication.desktop().screenGeometry()
+            screen_size = QApplication.primaryScreen().geometry()
             screen_width = screen_size.width()
             screen_height = screen_size.height()
             if x > screen_width - 40:
@@ -329,7 +328,7 @@ class FontViewer(QWidget):
             self.favorites = set(favorite_fonts.split(',')) if favorite_fonts else set()
             discard_names = []
             for row, font_name in enumerate(self.favorites):
-                if font_name not in self.font_db.families():
+                if font_name not in QFontDatabase.families():
                     discard_names.append(font_name)
 
             for font_name in discard_names:
