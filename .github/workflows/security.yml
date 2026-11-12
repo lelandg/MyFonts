@@ -519,7 +519,10 @@ jobs:
                   chosen = [n_ for n_ in names if "/" not in n_] or names
               else:
                   chosen = [] if any("/" in n_ for n_ in names) else names
-              if not (chosen and release.fullmatch(max(chosen, key=len))):
+              # Ties: zizmor may pick any of the equally long tags, so every
+              # one of them must be a release tag.
+              top = max((len(n_) for n_ in chosen), default=0)
+              if not (chosen and all(release.fullmatch(n_) for n_ in chosen if len(n_) == top)):
                   for p in where:
                       bad += 1
                       print(f"::error file={esc(p)},title=action pins::{esc(owner)}/{esc(repo)}@{sha} is not a release-tagged commit of {esc(owner)}/{esc(repo)} (no tag, or the tag zizmor would query is not a plain version such as v1.2.3), so no advisory can be matched to it. Pin the SHA of a released version.")
