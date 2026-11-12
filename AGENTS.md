@@ -44,8 +44,11 @@ here; read it there. What is specific to this repo:
   release tag and fails on a known-vulnerable, impostor or unpinned action.
   osv-scanner's `github/actions` plugin only lists the pinned actions: with
   osv-scanner 2.7.0 it did not flag `tj-actions/changed-files`
-  (GHSA-mrrh-fwg8-r2c3) at a vulnerable SHA or tag. A SHA that no release
-  tag points at cannot be matched to an advisory, so pin released versions.
+  (GHSA-mrrh-fwg8-r2c3) at a vulnerable SHA or tag. zizmor looks up a SHA
+  pin by the longest tag on that commit, so the job also fails unless that
+  tag is a plain release version (v1, v1.2.3): an untagged commit, a
+  non-version tag or a path-prefixed tag would match no advisory. Pin
+  released versions.
 - Dependabot **alerts** are a per-repo GitHub setting; a config file does not
   turn them on. Without them the config above governs version updates only.
   Check it by HTTP STATUS, not by exit code -- `gh api` exits 0 on success
