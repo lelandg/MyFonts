@@ -31,8 +31,10 @@ in `~/.claude/instructions/security-scanning.md` and
 there. What is specific to this repo:
 
 - CI runs `gitleaks`, `osv-scanner` and `zizmor` on every PR, every push to `main`, and
-  weekly (`.github/workflows/security.yml`). There are no npm jobs: the repo has
-  no `package-lock.json`, and `npm ci` without one is a red check, not a scan.
+  weekly (`.github/workflows/security.yml`). The workflow also carries
+  `npm audit` and `npm audit signatures` jobs, which skip themselves with a
+  notice here: the repo has no `package-lock.json` or `npm-shrinkwrap.json`,
+  so a green npm job is a skip, not a scan.
 - Dependabot config is committed (`.github/dependabot.yml`): grouped security
   PRs for `requirements.txt` (pip), and **version updates only** for
   github-actions.
@@ -48,5 +50,8 @@ there. What is specific to this repo:
   skips drafts, Dependabot and Renovate PRs, and any PR opened carrying the
   `no-ai-review` label. The list is additive, not closed: nothing named here
   replaces a council member. A green CodeRabbit check does not mean "no
-  findings", or even that a review ran: how to read its check and retry a
-  missed review is in `~/.claude/instructions/pr-review-automation.md`.
+  findings", or even that a review ran. Read the check run's output title on
+  the PR's head (`Finished` = reviewed; `Review rate limited` and
+  `Review skipped` = not reviewed); the query is in the comments of
+  `.coderabbit.yaml`. Findings arrive as inline comments, so read them too.
+  Retrying a missed review: `~/.claude/instructions/pr-review-automation.md`.
